@@ -1,0 +1,116 @@
+from __future__ import annotations
+
+from app.domain.models import ExpenseCategory
+
+RULES: dict[ExpenseCategory, tuple[str, ...]] = {
+    ExpenseCategory.FOOD: (
+        "food",
+        "cafe",
+        "coffee",
+        "restaurant",
+        "grocer",
+        "продукт",
+        "магазин",
+        "еда",
+        "обед",
+        "ужин",
+        "завтрак",
+        "кафе",
+        "кофе",
+        "самокат",
+        "вкусвилл",
+        "пятероч",
+        "перекрест",
+        "магнит",
+        "лента",
+    ),
+    ExpenseCategory.TRANSPORT: (
+        "taxi",
+        "metro",
+        "bus",
+        "fuel",
+        "бензин",
+        "такси",
+        "метро",
+        "электричк",
+        "каршер",
+        "яндекс такси",
+        "yandex go",
+        "яндекс go",
+        "яндекс драйв",
+    ),
+    ExpenseCategory.HOUSING: (
+        "rent",
+        "mortgage",
+        "арен",
+        "ипотек",
+        "жкх",
+        "квартплат",
+    ),
+    ExpenseCategory.UTILITIES: (
+        "electricity",
+        "water",
+        "gas",
+        "internet",
+        "mobile",
+        "коммун",
+        "свет",
+        "вода",
+        "интернет",
+        "связь",
+        "телефон",
+    ),
+    ExpenseCategory.HEALTH: (
+        "doctor",
+        "clinic",
+        "pharmacy",
+        "аптек",
+        "больниц",
+        "врач",
+        "анализ",
+        "стомат",
+    ),
+    ExpenseCategory.EDUCATION: (
+        "course",
+        "book",
+        "tuition",
+        "курс",
+        "обуч",
+        "книга",
+        "школ",
+        "универ",
+        "репетит",
+    ),
+    ExpenseCategory.SHOPPING: (
+        "ozon",
+        "wildberries",
+        "wb",
+        "lamoda",
+        "маркет",
+        "одежд",
+        "обув",
+        "озон",
+        "вайлдбер",
+        "яндекс маркет",
+    ),
+    ExpenseCategory.ENTERTAINMENT: (
+        "movie",
+        "cinema",
+        "bar",
+        "game",
+        "netflix",
+        "кино",
+        "развлеч",
+        "театр",
+        "концерт",
+        "подписк",
+    ),
+}
+
+
+def categorize(description: str) -> ExpenseCategory:
+    lowered = description.lower()
+    for category, keywords in RULES.items():
+        if any(keyword in lowered for keyword in keywords):
+            return category
+    return ExpenseCategory.OTHER

@@ -1,13 +1,159 @@
 [project]
 name = "finpaws"
 version = "0.1.0"
-description = "Add your description here"
+description = "FinPaws — agentic personal finance assistant (PoC)"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+# Base install is tiny — just the `finpaws` budget CLI (+ config). The agent / REST API
+# need the `server` extra; tracing needs `langfuse`; `all` pulls everything.
+dependencies = [
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.6.0",
+]
+
+[project.optional-dependencies]
+server = [
+    "bcrypt>=4.2.0",
+    "email-validator>=2.2.0",
+    "fastapi>=0.115.0",
+    "httpx>=0.28.0",
+    "langchain>=0.3.7",
+    "langchain-chroma>=0.1.4",
+    "langchain-core>=0.3.15",
+    "langchain-openai>=0.2.5",
+    "langchain-qdrant>=0.2.0",
+    "langgraph>=0.2.40",
+    "langgraph-checkpoint-postgres>=2.0.1",
+    "loguru>=0.7.2",
+    "prometheus-fastapi-instrumentator>=7.1.0",
+    "psycopg[binary]>=3.2.0",
+    "pyjwt>=2.9.0",
+    "python-multipart>=0.0.12",
+    "qdrant-client>=1.12.0",
+    "slowapi>=0.1.9",
+    "sqlalchemy>=2.0.36",
+    "sqlmodel>=0.0.38",
+    "uvicorn>=0.31.0",
+]
+langfuse = ["langfuse>=4.6.1"]
+all = ["finpaws[server,langfuse]"]
+
+[project.scripts]
+finpaws = "app.main:main"                              # budget CLI — base install
+finpaws-api = "app.api.main:run"                       # needs the `server` extra
+finpaws-chat = "app.cli.chat:main"                     # needs the `server` extra
+finpaws-evals = "app.evals.runner:main"                # needs the `server` extra
+finpaws-deepeval = "app.evals.deepeval_runner:main"    # needs the dev group (deepeval)
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.2",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "pytest-timeout>=2.4.0",
     "ruff>=0.15.5",
+    "mypy>=2.0.0",
+    "deepeval>=4.0.0",
+    "locust>=2.43.4",
 ]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+src = ["app", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", # pycodestyle + pyflakes
+    "I",           # isort
+    "N",           # pep8-naming
+    "UP",          # pyupgrade
+    "B",           # flake8-bugbear
+    "C4",          # flake8-comprehensions
+    "SIM",         # flake8-simplify
+    "RET",         # flake8-return
+    "RSE",         # flake8-raise
+    "PIE",         # flake8-pie
+    "PT",          # flake8-pytest-style
+    "T20",         # flake8-print
+    "PERF",        # perflint
+    "PGH",         # pygrep-hooks (no blanket type: ignore / noqa)
+    "PLW",         # pylint warnings
+    "PTH",         # flake8-use-pathlib
+    "BLE",         # flake8-blind-except
+    "FA",          # flake8-future-annotations
+    "ASYNC",       # flake8-async
+    "RUF",         # ruff-specific
+]
+ignore = [
+    "E501",                       # line length is enforced by the formatter
+    "RUF001", "RUF002", "RUF003", # ambiguous Unicode chars (Cyrillic copy is intentional)
+    "RUF012",                     # mutable class attrs without ClassVar (pydantic/sqlalchemy idiom)
+    "B008",                       # function calls in argument defaults (FastAPI `Depends(...)`)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["T20", "PLW", "BLE", "PT011"]
+# These are user-facing CLIs — their output is stdout, not the loguru log stream.
+"app/cli/**" = ["T20"]
+"app/evals/**" = ["T20"]
+"app/main.py" = ["T20"]
+"scripts/**" = ["T20"]
+
+[tool.ruff.lint.pep8-naming]
+# FastAPI dependency callables / SQLAlchemy session factories are conventionally PascalCase-ish.
+extend-ignore-names = ["SessionLocal"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+pretty = true
+plugins = ["pydantic.mypy"]
+files = ["app", "tests"]
+
+[[tool.mypy.overrides]]
+module = [
+    "langchain.*",
+    "langchain_core.*",
+    "langchain_openai.*",
+    "langchain_chroma.*",
+    "langchain_qdrant.*",
+    "langgraph.*",
+    "qdrant_client.*",
+    "deepeval.*",
+    "openai.*",
+    "langfuse.*",
+    "slowapi.*",
+    "limits.*",
+    "prometheus_fastapi_instrumentator.*",
+]
+ignore_missing_imports = true
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+disallow_any_generics = false
+disallow_subclassing_any = false
+warn_return_any = false
+
+[[tool.mypy.overrides]]
+# Thin glue around the deepeval framework + the OpenAI-compatible judge SDK.
+module = ["app.evals.judge", "app.evals.deepeval_runner"]
+disallow_subclassing_any = false
+disallow_untyped_calls = false
+warn_return_any = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -p no:deepeval"
+timeout = 60

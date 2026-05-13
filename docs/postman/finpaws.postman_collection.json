@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "FinPaws API",
+    "_postman_id": "6a0f54fd-cbe6-47ea-b9e2-2a30c877a202",
+    "description": "Коллекция для проверки FastAPI-ручек FinPaws",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Income",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"amount\": \"120000\",\n  \"description\": \"Зарплата\",\n  \"currency\": \"RUB\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transactions/income",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transactions",
+            "income"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Expense",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"amount\": \"780\",\n  \"description\": \"Яндекс Такси\",\n  \"currency\": \"RUB\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transactions/expense",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transactions",
+            "expense"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Build Budget Plan",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"monthly_income\": \"120000\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/budget/plan",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "budget",
+            "plan"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Goal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"name\": \"Подушка\",\n  \"target_amount\": \"300000\",\n  \"horizon_months\": 12\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/goals",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "goals"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Goal Progress",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"{{userId}}\",\n  \"name\": \"Подушка\",\n  \"amount\": \"25000\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/goals/progress",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "goals",
+            "progress"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Report",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/report?user_id={{userId}}&days=30",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "report"
+          ],
+          "query": [
+            {
+              "key": "user_id",
+              "value": "{{userId}}"
+            },
+            {
+              "key": "days",
+              "value": "30"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "userId",
+      "value": "demo"
+    }
+  ]
+}

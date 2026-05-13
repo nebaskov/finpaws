@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-extras --dev
+      - name: Ruff (lint)
+        run: uv run ruff check .
+      - name: Ruff (format)
+        run: uv run ruff format --check .
+      - name: mypy (strict)
+        run: uv run mypy
+
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # update the committed coverage badge on master
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-extras --dev
+      - name: Pytest + coverage
+        run: uv run python -m pytest --cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=85
+      - name: Update coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          uv run --with "genbadge[coverage]" genbadge coverage -i coverage.xml -o coverage.svg -n coverage
+          if [ -n "$(git status --porcelain -- coverage.svg)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add coverage.svg
+            git commit -m "ci: update coverage badge [skip ci]"
+            git push origin HEAD:master
+          fi

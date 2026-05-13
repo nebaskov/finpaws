@@ -1,0 +1,1 @@
+"""FinPaws application package."""

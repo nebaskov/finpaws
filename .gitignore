@@ -9,9 +9,23 @@ wheels/
 # Virtual environments
 .venv
 
+# Tooling caches / reports
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+.deepeval/
+# coverage.svg is committed (the README badge) — not ignored
+
+# Local data written by the CLI / hledger mirror
+data/
+
+# Editors / OS
 .claude
 .cursor
 .vscode
+.DS_Store
 
 .env
-
